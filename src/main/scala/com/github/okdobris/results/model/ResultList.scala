@@ -4,5 +4,6 @@ package model
 case class ResultList(
   status: String,
   iofVersion: String,
-  creator: String
+  creator: String,
+  event: Event
 )
