@@ -4,7 +4,7 @@ import model._
 import org.json4s._
 import org.json4s.Xml._
 
-import scala.util.Try
+import scala.util._
 
 
 object Main {
@@ -14,11 +14,17 @@ object Main {
     val inputFile = if (args.nonEmpty) args(0) else "data/results.xml"
     val outputFile = if (args.length > 1) args(1) else "data/report.csv"
     val xml = scala.xml.XML.loadFile(inputFile)
-    val json = toJson(xml).camelizeKeys.transformField {
-      case ("id", JString(s)) if Try(s.toInt).isSuccess => ("id", JInt(s.toInt))
-      case ("time", JString(s)) if Try(s.toInt).isSuccess => ("time", JInt(s.toInt))
-      case ("position", JString(s)) if Try(s.toInt).isSuccess => ("position", JInt(s.toInt))
-      case ("controlCode", JString(s)) if Try(s.toInt).isSuccess => ("controlCode", JInt(s.toInt))
+    // some fields should be interpreted as numbers if possible
+    val numericFields = Set("id", "time", "position", "controlCode")
+    val json = toJson(xml).camelizeKeys.transformField { case originalValue@(name, JString(value)) =>
+      if (numericFields.contains(name)) {
+        Try(value.toInt) match {
+          case Success(value) =>
+            (name, JInt(value))
+          case Failure(exception) =>
+            originalValue
+        }
+      } else originalValue
     }
 
     val data = json match {
