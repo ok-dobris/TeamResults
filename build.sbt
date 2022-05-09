@@ -4,5 +4,7 @@ ThisBuild / scalaVersion := "2.13.8"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "TeamResults"
+    name := "TeamResults",
+
+    libraryDependencies += "com.rallyhealth" %% "weepickle-v1" % "1.7.2"
   )
