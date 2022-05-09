@@ -5,5 +5,6 @@ case class ResultList(
   status: String,
   iofVersion: String,
   creator: String,
-  event: Event
+  event: Event,
+  classResult: List[ClassResult]
 )

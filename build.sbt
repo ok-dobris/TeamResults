@@ -10,5 +10,6 @@ lazy val root = (project in file("."))
 
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.1.0",
     libraryDependencies += "org.json4s" %% "json4s-native" % json4sVersion,
-    libraryDependencies += "org.json4s" %% "json4s-xml" % json4sVersion
+    libraryDependencies += "org.json4s" %% "json4s-xml" % json4sVersion,
+    libraryDependencies += "org.json4s" %% "json4s-ext" % json4sVersion
   )
