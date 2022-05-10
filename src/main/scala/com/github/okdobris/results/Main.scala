@@ -58,6 +58,32 @@ object Main {
     }
 
     val winPoints = data.winnerPoints
-    println(s"Winner points $winPoints")
+
+    val teams = data.teams
+
+    val teamNames = data.classResult.flatMap(_.personResult.map(pr => pr.team -> pr.organisation.map(_.name).getOrElse(""))).distinct.toMap
+
+    val clsResults = data.classResult.filterNot(_.isOpen).map { cls =>
+      val teamResults = teams.flatMap { team =>
+        val teamInClass = cls.personResult.filter(_.team == team)
+        Option.when(teamInClass.nonEmpty) {
+          val countedResults = teamInClass.flatMap(person => person.result.position.map(_ -> person)).take(2)
+          // další závodníci družstva, kteří již nebodují body neberou, ale ani body neumořují.
+          val scoredPlaces = countedResults.map(place => place._2 -> (winPoints - (place._1 - 1) max 0)).map(ps => ps._1.fullName -> ps._2)
+          (team, scoredPlaces.map(_._2).sum, scoredPlaces)
+        }
+      }
+      cls.`class`.name -> teamResults.sortBy(_._2).reverse
+    }
+
+    println(s"Bodů za 1. místo: $winPoints")
+
+
+    for ((cls, clsTeams) <- clsResults) {
+      println(s"\n\nKategorie $cls\n")
+      for ((team, score, teamResults) <- clsTeams) {
+        println(s"$team (${teamNames(team)}): $score (${teamResults.map(ps => ps._1 + ":" + ps._2).mkString(",")})")
+      }
+    }
   }
 }
