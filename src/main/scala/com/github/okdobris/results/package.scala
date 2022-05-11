@@ -8,20 +8,18 @@ package object results {
   }
 
   implicit class PersonResultOps(private val personResult: PersonResult) {
-    // first three characters of person Id are team code
-    def team: String = personResult.person.id.take(3)
+    // skip last three characters of person Id to get a team code
+    def team: String = personResult.person.id.dropRight(3)
     def fullName: String = personResult.person.name.family + " "  + personResult.person.name.given
   }
   implicit class ResultOps(private val data: ResultList) {
 
-    def winnerPoints: Int = {
-      // Již od okresních kol se body přidělují podle počtu zúčastněných družstev v nejvíce obsazené kategorii x 2.
-      val mostTeams = data.classResult.filterNot(_.isOpen).map { cls =>
+    def mostTeams: (String, Int) = {
+      val classTeams = data.classResult.filterNot(_.isOpen).map { cls =>
         val classTeams = cls.personResult.map(_.team).distinct
-        classTeams.size
-      }.max
-
-      mostTeams * 2
+        cls.`class`.name -> classTeams.size
+      }
+      classTeams.maxBy(_._2)
     }
 
     def teams: List[String] = {

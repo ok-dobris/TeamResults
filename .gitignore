@@ -3,4 +3,5 @@
 /target/
 /project/target/
 /data/
-
+/*.xml
+/*.csv
