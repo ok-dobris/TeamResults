@@ -57,6 +57,8 @@ object Main {
     val data = json match {
       case JObject(obj) =>
         obj.head._2.extract[ResultList]
+      case _ =>
+        throw new UnsupportedOperationException("Bad input file format")
     }
 
     val mostTeams = data.mostTeams
@@ -131,6 +133,26 @@ object Main {
         for ((team, score, teamResults) <- clsTeams) {
           writer.println(s"${score._1},\"$team (${teamNames(team)})\",\"${teamResults.map(ps => s"${ps._1.fullName}:${ps._2}b-${ps._1.result.time}s").mkString(" ")}\",${score._2}s")
         }
+      }
+
+      val groups = Seq("DH3+DH5" -> Seq("D3", "H3", "D5", "H5"), "DH7+DH9" -> Seq("D7", "H7", "D9", "H9"), "DS+HS" -> Seq("DS", "HS"))
+
+      for ((groupName, group) <- groups) {
+        val g = group.flatMap { clsName =>
+          clsMap.get(clsName).toList.flatten
+        }
+
+        val teamGroupResults = g.groupBy(_._1).toList
+        val teamScores = teamGroupResults.map(kv => (kv._1, kv._2.map(_._2._1).sum, kv._2.map(_._2._2).sum)).sortBy(kv => (-kv._2, kv._3)) // sort by score reversed, then by time
+
+        writer.println(s"\nKategorie ${groupName}\n")
+
+        writer.println("Body,Družstvo,Celk.čas")
+        for ((team, score, time) <- teamScores) {
+          writer.println(s"$score,\"$team (${teamNames(team)})\",$time")
+        }
+
+
       }
 
     } finally {
