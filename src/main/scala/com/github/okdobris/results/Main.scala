@@ -68,16 +68,24 @@ object Main {
     val teamNames = data.classResult.flatMap(_.personResult.map(pr => pr.team -> pr.organisation.map(_.name).getOrElse(""))).distinct.toMap
 
     val clsResults = data.classResult.filterNot(_.isOpen).map { cls =>
+
+      // další závodníci družstva, kteří již nebodují body neberou, ale ani body neumořují.
+      val scoringPlaces = cls.personResult.filter(_.result.position.nonEmpty).groupBy(_.team).toList.flatMap(_._2.take(2)).sortBy(_.result.position)
+      val scores = scoringPlaces.zipWithIndex.map { case (result, scoreRank) =>
+        result -> (winPoints - scoreRank max 0)
+      }
       val teamResults = teams.flatMap { team =>
-        val teamInClass = cls.personResult.filter(_.team == team)
-        Option.when(teamInClass.nonEmpty) {
-          val countedResults = teamInClass.flatMap(person => person.result.position.map(_ -> person)).take(2)
-          // další závodníci družstva, kteří již nebodují body neberou, ale ani body neumořují.
-          val scoredPlaces = countedResults.map(place => place._2 -> (winPoints - (place._1 - 1) max 0))
-          (team, scoredPlaces.map(_._2).sum, scoredPlaces)
+        // list only teams participating in the class
+        Option.when(cls.personResult.exists(_.team == team)) {
+          val teamInClass = scores.filter(_._1.team == team)
+          val totalScore = teamInClass.map(_._2).sum
+          val totalTime = teamInClass.map(_._1.result.time).sum
+          (team, (totalScore, totalTime), teamInClass)
         }
       }
-      cls.`class`.name -> teamResults.sortBy(_._2).reverse
+      cls.`class`.name -> teamResults.sortBy { case (_, (score, time), _) =>
+        (-score, time)
+      }
     }
 
 
@@ -119,9 +127,9 @@ object Main {
       // print team results report
       for ((cls, clsTeams) <- clsResults) {
         writer.println(s"\n\nKategorie $cls\n")
-        writer.println("Body,Družstvo,Kdo bodoval")
+        writer.println("Body,Družstvo,Kdo bodoval,Celk.čas")
         for ((team, score, teamResults) <- clsTeams) {
-          writer.println(s"$score,\"$team (${teamNames(team)})\",\"${teamResults.map(ps => ps._1.fullName + ":" + ps._2).mkString(" ")}\"")
+          writer.println(s"${score._1},\"$team (${teamNames(team)})\",\"${teamResults.map(ps => s"${ps._1.fullName}:${ps._2}b-${ps._1.result.time}s").mkString(" ")}\",${score._2}s")
         }
       }
 
