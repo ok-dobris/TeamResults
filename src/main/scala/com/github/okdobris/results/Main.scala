@@ -135,7 +135,11 @@ object Main {
         }
       }
 
-      val groups = Seq("DH3+DH5" -> Seq("D3", "H3", "D5", "H5"), "DH7+DH9" -> Seq("D7", "H7", "D9", "H9"), "DS+HS" -> Seq("DS", "HS"))
+      val groups = Seq(
+        "DH3+DH5" -> Seq("D3", "H3", "D5", "H5", "DI", "HI", "DII", "HII"),
+        "DH7+DH9" -> Seq("D7", "H7", "D9", "H9", "DIII", "HIII", "DIV", "HIV"),
+        "DS+HS" -> Seq("DS", "HS", "DV", "HV")
+      )
 
       for ((groupName, group) <- groups) {
         val g = group.flatMap { clsName =>
