@@ -1,8 +1,9 @@
 package com.github.okdobris.results
 
 import java.io.Writer
-
 import TableWriter._
+
+import scala.io.Source
 
 sealed trait TableWriter {
   // use HTML terminology, as CSV can be handled easily as a subset
@@ -69,17 +70,14 @@ object TableWriter {
       this
     }
 
-    write(
-      """
-        |<!DOCTYPE html>
-        |<html>
-        |<head>
-        |<meta charset="UTF-8">
-        |<title>Page Title</title>
-        |</head>
-        |<body>
-        |""".stripMargin
-    )
+    val htmlTemplate = {
+      val resource = Source.fromResource("template.html")
+      resource.getLines.mkString("\n")
+    }.split("\\$\\$\\$")
+    val htmlPrefix = htmlTemplate(0)
+    val htmlPostfix = htmlTemplate(1)
+
+    write(htmlPrefix)
 
     def table(): TableWriter = write("<table>\n")
     def _table(): TableWriter = write("</table>\n")
@@ -94,12 +92,7 @@ object TableWriter {
     def label(s: String): TableWriter = write(s"<h1>$s</h1>\n")
 
     def close(): Unit = {
-      write(
-        """
-          |</body>
-          |</html>
-          |""".stripMargin
-      )
+      write(htmlPostfix)
       w.close()
     }
   }
