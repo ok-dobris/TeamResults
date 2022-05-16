@@ -70,6 +70,8 @@ object Main {
 
     val teamNames = data.classResult.flatMap(_.personResult.map(pr => pr.team -> pr.organisation.map(_.name).getOrElse(""))).distinct.toMap
 
+    def teamFullName(team: String) = s"$team (${teamNames(team)})"
+
     val clsResults = data.classResult.filterNot(_.isOpen).map { cls =>
 
       // další závodníci družstva, kteří již nebodují body neberou, ale ani body neumořují.
@@ -125,7 +127,7 @@ object Main {
         writer.table()
         writer.tr().th("Umístění").th("Družstvo").th("Body").th("Závodník")._tr()
         for (p <- clsPersons) {
-          writer.tr().td(s"${p._1.result.position.map(_.toString).getOrElse("DISK")}").td(p._1.team).td(p._2).td(p._1.fullName)._tr()
+          writer.tr(if (p._2 != 0) "score" else "").td(s"${p._1.result.position.map(_.toString).getOrElse("DISK")}").td(teamFullName(p._1.team)).td(p._2).td(p._1.fullName)._tr()
         }
         writer._table()
         writer._page()
@@ -144,7 +146,7 @@ object Main {
           writer
             .tr()
             .td(score._1)
-            .td(s"$team (${teamNames(team)})")
+            .td(teamFullName(team))
             .td(teamResults.map(ps => s"${ps._1.fullName}:${ps._2}b-${ps._1.result.time}s").mkString(" "))
             .td(score._2)
             ._tr()

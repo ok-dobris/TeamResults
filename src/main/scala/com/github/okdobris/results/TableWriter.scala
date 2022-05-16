@@ -15,7 +15,7 @@ sealed trait TableWriter {
   def table(): TableWriter
   def _table(): TableWriter
 
-  def tr(): TableWriter
+  def tr(cls: String = ""): TableWriter
   def _tr(): TableWriter
 
   def th(s: String): TableWriter
@@ -59,7 +59,7 @@ object TableWriter {
     def table(): TableWriter = this
     def _table(): TableWriter = this
 
-    def tr(): TableWriter = this
+    def tr(cls: String = ""): TableWriter = this
     def _tr(): TableWriter = {
       trOpen = false
       write("\n")
@@ -97,7 +97,7 @@ object TableWriter {
     def table(): TableWriter = write("<table>\n")
     def _table(): TableWriter = write("</table>\n")
 
-    def tr(): TableWriter = write("<tr>")
+    def tr(cls: String): TableWriter = write(if (cls.nonEmpty) s"<tr class='$cls'>" else "<tr>")
     def _tr(): TableWriter = write("</tr>\n")
 
     def th(s: String): TableWriter = write(s"<th>$s</th>")
@@ -126,7 +126,7 @@ object TableWriter {
     def table(): TableWriter = this.map(_.table())
     def _table(): TableWriter = this.map(_._table())
 
-    def tr(): TableWriter = this.map(_.tr())
+    def tr(cls: String = ""): TableWriter = this.map(_.tr(cls))
     def _tr(): TableWriter = this.map(_._tr())
 
     def th(s: String): TableWriter = this.map(_.th(s))
