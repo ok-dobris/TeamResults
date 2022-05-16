@@ -35,6 +35,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val inputFile = if (args.nonEmpty) args(0) else "results.xml"
     val outputFile = if (args.length > 1) args(1) else "report.csv"
+    val outputHtmlFile = if (args.length > 1) args(1) else "report.html"
     val xml = scala.xml.XML.loadFile(inputFile)
     // some fields should be interpreted as numbers if possible
 
@@ -97,18 +98,22 @@ object Main {
         writer.write("\n")
       }
     }
-    val writer = new FileWriter(outputFile, StandardCharsets.UTF_8)
+    val writerCSV = new FileWriter(outputFile, StandardCharsets.UTF_8)
+    val writerHTML = new FileWriter(outputHtmlFile, StandardCharsets.UTF_8)
+
+
+    val writer = new TableWriter.Multi(new TableWriter.CSV(writerCSV), new TableWriter.HTML(writerHTML))
+
     try {
       // print general header
-      writer.println(s"Nejobsazenější kategorie,${mostTeams._1},${mostTeams._2}")
-      writer.println(s"Bodů za 1. místo,$winPoints")
+      writer.label(s"Nejobsazenější kategorie: ${mostTeams._1} ${mostTeams._2}")
+      writer.label(s"Bodů za 1. místo: $winPoints")
 
       // print warnings: missing ID
       val missingId = data.classResult.flatMap(_.personResult.filter(_.person.id.isBlank).map(_.person))
       for (m <- missingId) {
-        writer.println(s"Chybějící id,${m.name}")
+        writer.label(s"Chybějící id: ${m.fullName}")
       }
-      writer.println("\n")
 
       // print points assigned in each category
       val clsMap = clsResults.toMap
@@ -118,21 +123,31 @@ object Main {
           personResult -> clsPoints.getOrElse(personResult.person, 0)
         }.sortBy(_._1.result.position.getOrElse(Int.MaxValue))
 
-        writer.println(s"\nKategorie ${cls.`class`.name}\n")
-        writer.println("Umístění,Družstvo,Body,Závodník")
+        writer.label(s"\nKategorie ${cls.`class`.name}\n")
+        writer.table()
+        writer.tr().th("Umístění").th("Družstvo").th("Body").th("Závodník")._tr()
         for (p <- clsPersons) {
-          writer.println(s"${p._1.result.position.map(_.toString).getOrElse("DISK")},${p._1.team},${p._2},${p._1.fullName}")
+          writer.tr().td(s"${p._1.result.position.map(_.toString).getOrElse("DISK")}").td(p._1.team).td(p._2).td(p._1.fullName)._tr()
         }
+        writer._table()
       }
 
 
       // print team results report
       for ((cls, clsTeams) <- clsResults) {
-        writer.println(s"\n\nKategorie $cls\n")
-        writer.println("Body,Družstvo,Kdo bodoval,Celk.čas")
+        writer.label(s"Kategorie $cls")
+        writer.table()
+        writer.tr().th("Body").th("Družstvo").th("Kdo bodoval").th("Celk.čas")._tr()
         for ((team, score, teamResults) <- clsTeams) {
-          writer.println(s"${score._1},\"$team (${teamNames(team)})\",\"${teamResults.map(ps => s"${ps._1.fullName}:${ps._2}b-${ps._1.result.time}s").mkString(" ")}\",${score._2}s")
+          writer
+            .tr()
+            .td(score._1)
+            .td(s"$team (${teamNames(team)})")
+            .td(teamResults.map(ps => s"${ps._1.fullName}:${ps._2}b-${ps._1.result.time}s").mkString(" "))
+            .td(score._2)
+            ._tr()
         }
+        writer._table()
       }
 
       val groups = Seq(
@@ -149,12 +164,15 @@ object Main {
         val teamGroupResults = g.groupBy(_._1).toList
         val teamScores = teamGroupResults.map(kv => (kv._1, kv._2.map(_._2._1).sum, kv._2.map(_._2._2).sum)).sortBy(kv => (-kv._2, kv._3)) // sort by score reversed, then by time
 
-        writer.println(s"\nKategorie ${groupName}\n")
+        writer.label(s"Kategorie $groupName")
 
-        writer.println("Body,Družstvo,Celk.čas")
+        writer.table()
+        writer.tr().th("Body").th("Družstvo").th("Celk.čas")._tr()
+
         for ((team, score, time) <- teamScores) {
-          writer.println(s"$score,\"$team (${teamNames(team)})\",$time")
+          writer.tr().td(score).td(s"$team (${teamNames(team)})").td(time)._tr()
         }
+        writer._table()
 
 
       }

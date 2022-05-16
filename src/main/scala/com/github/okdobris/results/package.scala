@@ -7,10 +7,16 @@ package object results {
     def isOpen: Boolean = cls.`class`.name.toLowerCase == "open"
   }
 
+  implicit class PersonOps(private val person: Person) {
+    // skip last three characters of person Id to get a team code
+    def team: String = person.id.dropRight(3)
+    def fullName: String = person.name.family + " "  + person.name.given
+  }
+
   implicit class PersonResultOps(private val personResult: PersonResult) {
     // skip last three characters of person Id to get a team code
     def team: String = personResult.person.id.dropRight(3)
-    def fullName: String = personResult.person.name.family + " "  + personResult.person.name.given
+    def fullName: String = personResult.person.fullName
   }
   implicit class ResultOps(private val data: ResultList) {
 
