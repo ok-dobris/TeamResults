@@ -1,12 +1,17 @@
 package com.github.okdobris.results
 
 import java.io.Writer
-import TableWriter._
 
 import scala.io.Source
 
 sealed trait TableWriter {
   // use HTML terminology, as CSV can be handled easily as a subset
+  def hr(): TableWriter
+
+  def page(): TableWriter
+  def _page(): TableWriter
+
+
   def table(): TableWriter
   def _table(): TableWriter
 
@@ -46,6 +51,11 @@ object TableWriter {
     }
 
 
+    def hr(): TableWriter = this
+
+    def page(): TableWriter = this
+    def _page(): TableWriter = this
+
     def table(): TableWriter = this
     def _table(): TableWriter = this
 
@@ -74,10 +84,15 @@ object TableWriter {
       val resource = Source.fromResource("template.html")
       resource.getLines.mkString("\n")
     }.split("\\$\\$\\$")
-    val htmlPrefix = htmlTemplate(0)
-    val htmlPostfix = htmlTemplate(1)
+    val htmlPrefix = htmlTemplate.head
+    val htmlPostfix = htmlTemplate.last
 
     write(htmlPrefix)
+
+    def hr(): TableWriter = write("<hr/>\n")
+
+    def page(): TableWriter = write("<div class='page'>\n")
+    def _page(): TableWriter = write("</div>\n")
 
     def table(): TableWriter = write("<table>\n")
     def _table(): TableWriter = write("</table>\n")
@@ -89,7 +104,7 @@ object TableWriter {
 
     def td(s: String): TableWriter = write(s"<td>$s</td>")
 
-    def label(s: String): TableWriter = write(s"<h1>$s</h1>\n")
+    def label(s: String): TableWriter = write(s"<h2>$s</h2>\n")
 
     def close(): Unit = {
       write(htmlPostfix)
@@ -102,6 +117,11 @@ object TableWriter {
     def map(f: TableWriter => TableWriter): Multi = new Multi(writers.map(f):_*)
 
     def close(): Unit = writers.foreach(_.close())
+
+    def hr(): TableWriter = this.map(_.hr())
+
+    def page(): TableWriter = this.map(_.page())
+    def _page(): TableWriter = this.map(_._page())
 
     def table(): TableWriter = this.map(_.table())
     def _table(): TableWriter = this.map(_._table())

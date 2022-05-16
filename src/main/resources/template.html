@@ -1,10 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Page Title</title>
+	<meta charset="UTF-8">
+	<style>
+		table {
+				border: 2px solid;
+        border-collapse: collapse;
+		}
+		table th {
+				background: lightgray;
+		}
+    table th {
+        border-bottom: 2px solid #000000;
+    }
+    table td {
+		    font-size: 0.8rem;
+    }
+    table tr:nth-child(even) {
+		    background-color: #f2f2f2;
+    }
+
+    @media print {
+        div.page {
+            page-break-inside: avoid;
+        }
+    }
+    @media print {
+        hr {
+            visibility: hidden;
+            page-break-after: always;
+        }
+    }
+	</style>
+	<title>Page Title</title>
 </head>
 <body>
+
+$$$
+<!-- Everything between $$$ and $$$ is ignored, serves only as an example to allow CSS tuning -->
+<h1>Nejobsazenější kategorie: H9 20</h1>
+<h1>Bodů za 1. místo: 40</h1>
+<h1>Chybějící id: AAA BBB</h1>
+<h1>
+	Kategorie D3
+</h1>
+<table>
+	<tr><th>Umístění</th><th>Družstvo</th><th>Body</th><th>Závodník</th></tr>
+	<tr><td>1</td><td>140</td><td>40</td><td>Ss Dd</td></tr>
+	<tr><td>2</td><td>140</td><td>39</td><td>Aaa Bbbb</td></tr>
+	<tr><td>3</td><td>140</td><td>0</td><td>Mmmm Llll</td></tr>
+	<tr><td>DISK</td><td>140</td><td>0</td><td>Aaaa Fffff</td></tr>
+	<tr><td>DISK</td><td>180</td><td>0</td><td>Kkkk Zzzzz</td></tr>
+</table>
 
 $$$
 

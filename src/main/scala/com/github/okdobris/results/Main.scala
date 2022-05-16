@@ -4,7 +4,7 @@ import model._
 import org.json4s._
 import org.json4s.Xml._
 
-import java.io.{Writer, FileWriter}
+import java.io.{FileWriter}
 import scala.util._
 import java.nio.charset.StandardCharsets
 
@@ -92,12 +92,6 @@ object Main {
     }
 
 
-    implicit class WriterOps(private val writer: Writer) {
-      def println(s: String): Unit = {
-        writer.write(s)
-        writer.write("\n")
-      }
-    }
     val writerCSV = new FileWriter(outputFile, StandardCharsets.UTF_8)
     val writerHTML = new FileWriter(outputHtmlFile, StandardCharsets.UTF_8)
 
@@ -106,6 +100,7 @@ object Main {
 
     try {
       // print general header
+      writer.page()
       writer.label(s"Nejobsazenější kategorie: ${mostTeams._1} ${mostTeams._2}")
       writer.label(s"Bodů za 1. místo: $winPoints")
 
@@ -114,6 +109,8 @@ object Main {
       for (m <- missingId) {
         writer.label(s"Chybějící id: ${m.fullName}")
       }
+      writer._page()
+      writer.hr()
 
       // print points assigned in each category
       val clsMap = clsResults.toMap
@@ -123,6 +120,7 @@ object Main {
           personResult -> clsPoints.getOrElse(personResult.person, 0)
         }.sortBy(_._1.result.position.getOrElse(Int.MaxValue))
 
+        writer.page()
         writer.label(s"\nKategorie ${cls.`class`.name}\n")
         writer.table()
         writer.tr().th("Umístění").th("Družstvo").th("Body").th("Závodník")._tr()
@@ -130,11 +128,15 @@ object Main {
           writer.tr().td(s"${p._1.result.position.map(_.toString).getOrElse("DISK")}").td(p._1.team).td(p._2).td(p._1.fullName)._tr()
         }
         writer._table()
+        writer._page()
       }
+
+      writer.hr()
 
 
       // print team results report
       for ((cls, clsTeams) <- clsResults) {
+        writer.page()
         writer.label(s"Kategorie $cls")
         writer.table()
         writer.tr().th("Body").th("Družstvo").th("Kdo bodoval").th("Celk.čas")._tr()
@@ -148,7 +150,10 @@ object Main {
             ._tr()
         }
         writer._table()
+        writer._page()
       }
+
+      writer.hr()
 
       val groups = Seq(
         "DH3+DH5" -> Seq("D3", "H3", "D5", "H5", "DI", "HI", "DII", "HII"),
@@ -164,6 +169,7 @@ object Main {
         val teamGroupResults = g.groupBy(_._1).toList
         val teamScores = teamGroupResults.map(kv => (kv._1, kv._2.map(_._2._1).sum, kv._2.map(_._2._2).sum)).sortBy(kv => (-kv._2, kv._3)) // sort by score reversed, then by time
 
+        writer.page()
         writer.label(s"Kategorie $groupName")
 
         writer.table()
@@ -173,6 +179,7 @@ object Main {
           writer.tr().td(score).td(s"$team (${teamNames(team)})").td(time)._tr()
         }
         writer._table()
+        writer._page()
 
 
       }
