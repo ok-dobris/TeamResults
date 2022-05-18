@@ -4,7 +4,7 @@ import model._
 import org.json4s._
 import org.json4s.Xml._
 
-import java.io.{FileWriter}
+import java.io.{FileOutputStream, FileWriter, OutputStreamWriter}
 import scala.util._
 import java.nio.charset.StandardCharsets
 
@@ -93,9 +93,14 @@ object Main {
       }
     }
 
+    def openFileWriter(file: String) = {
+      // new FileWriter(outputFile, StandardCharsets.UTF_8) requires Java 11
+      val os = new FileOutputStream(file)
+      new OutputStreamWriter(os, StandardCharsets.UTF_8)
+    }
 
-    val writerCSV = new FileWriter(outputFile, StandardCharsets.UTF_8)
-    val writerHTML = new FileWriter(outputHtmlFile, StandardCharsets.UTF_8)
+    val writerCSV = openFileWriter(outputFile)
+    val writerHTML = openFileWriter(outputHtmlFile)
 
 
     val writer = new TableWriter.Multi(new TableWriter.CSV(writerCSV), new TableWriter.HTML(writerHTML))
@@ -107,7 +112,7 @@ object Main {
       writer.label(s"Bodů za 1. místo: $winPoints")
 
       // print warnings: missing ID
-      val missingId = data.classResult.flatMap(_.personResult.filter(_.person.id.isBlank).map(_.person))
+      val missingId = data.classResult.flatMap(_.personResult.filter(_.person.id.isEmpty).map(_.person))
       for (m <- missingId) {
         writer.label(s"Chybějící id: ${m.fullName}")
       }
