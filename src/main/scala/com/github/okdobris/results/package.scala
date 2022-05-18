@@ -16,7 +16,7 @@ package object results {
 
   implicit class PersonResultOps(private val personResult: PersonResult) {
     // skip last three characters of person Id to get a team code
-    def team: String = personResult.person.id.dropRight(3)
+    def team: String = personResult.person.team
     def fullName: String = personResult.person.fullName
   }
   implicit class ResultOps(private val data: ResultList) {
