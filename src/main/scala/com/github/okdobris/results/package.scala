@@ -9,7 +9,8 @@ package object results {
 
   implicit class PersonOps(private val person: Person) {
     // skip last three characters of person Id to get a team code
-    def team: String = person.id.dropRight(3)
+    // ORIS ID can be 0010002 (i.e. XXXNNNN), or 1002 (XNNN)
+    def team: String = person.id.dropRight(3).take(3)
     def fullName: String = person.name.family + " "  + person.name.given
   }
 
