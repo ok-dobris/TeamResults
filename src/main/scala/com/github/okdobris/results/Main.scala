@@ -138,20 +138,6 @@ object Main {
       }
       writer.hr()
 
-      // print general information
-      writer.page()
-      writer.label(s"Nejobsazenější kategorie: ${mostTeams._1} ${mostTeams._2}")
-      writer.label(s"Bodů za 1. místo: $winPoints")
-
-      // print warnings: missing ID
-      val missingId = data.classResult.filterNot(_.isOpen).flatMap(_.personResult.filter(_.person.id.isEmpty).map(_.person))
-      for (m <- missingId) {
-        writer.label(s"Chybějící id: ${m.fullName}")
-      }
-      writer._page()
-      writer.hr()
-
-
       // print team results report
       for ((cls, clsTeams) <- clsResults) {
         writer.page()
@@ -172,6 +158,19 @@ object Main {
       }
 
       writer.hr()
+
+      // print general information
+      writer.page()
+      writer.label(s"Nejobsazenější kategorie: ${mostTeams._1} ${mostTeams._2}")
+      writer.label(s"Bodů za 1. místo: $winPoints")
+
+      // print warnings: missing ID
+      val missingId = data.classResult.filterNot(_.isOpen).flatMap(_.personResult.filter(_.person.id.isEmpty).map(_.person))
+      for (m <- missingId) {
+        writer.label(s"Chybějící id: ${m.fullName}")
+      }
+      writer._page()
+
 
       // print points assigned in each category
       for (cls <- data.classResult if !cls.isOpen) {
