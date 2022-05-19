@@ -107,40 +107,7 @@ object Main {
     val clsMap = clsResults.toMap
 
     try {
-      // print general header
-      writer.page()
-      writer.label(s"Nejobsazenější kategorie: ${mostTeams._1} ${mostTeams._2}")
-      writer.label(s"Bodů za 1. místo: $winPoints")
-
-      // print warnings: missing ID
-      val missingId = data.classResult.flatMap(_.personResult.filter(_.person.id.isEmpty).map(_.person))
-      for (m <- missingId) {
-        writer.label(s"Chybějící id: ${m.fullName}")
-      }
-      writer._page()
-      writer.hr()
-
-      // print team results report
-      for ((cls, clsTeams) <- clsResults) {
-        writer.page()
-        writer.label(s"Kategorie $cls")
-        writer.table()
-        writer.tr().th("Body").th("Družstvo").th("Kdo bodoval").th("Celk.čas")._tr()
-        for ((team, score, teamResults) <- clsTeams) {
-          writer
-            .tr()
-            .td(score._1)
-            .td(teamFullName(team))
-            .td(teamResults.map(ps => s"${ps._1.fullName}:${ps._2}b-${ps._1.result.time}s").mkString(" "))
-            .td(score._2)
-            ._tr()
-        }
-        writer._table()
-        writer._page()
-      }
-
-      writer.hr()
-
+      // print category groups
       val groups = Seq(
         "DH3+DH5" -> Seq("D3", "H3", "D5", "H5", "DI", "HI", "DII", "HII"),
         "DH7+DH9" -> Seq("D7", "H7", "D9", "H9", "DIII", "HIII", "DIV", "HIV"),
@@ -169,6 +136,42 @@ object Main {
 
 
       }
+      writer.hr()
+
+      // print general information
+      writer.page()
+      writer.label(s"Nejobsazenější kategorie: ${mostTeams._1} ${mostTeams._2}")
+      writer.label(s"Bodů za 1. místo: $winPoints")
+
+      // print warnings: missing ID
+      val missingId = data.classResult.filterNot(_.isOpen).flatMap(_.personResult.filter(_.person.id.isEmpty).map(_.person))
+      for (m <- missingId) {
+        writer.label(s"Chybějící id: ${m.fullName}")
+      }
+      writer._page()
+      writer.hr()
+
+
+      // print team results report
+      for ((cls, clsTeams) <- clsResults) {
+        writer.page()
+        writer.label(s"Kategorie $cls")
+        writer.table()
+        writer.tr().th("Body").th("Družstvo").th("Kdo bodoval").th("Celk.čas")._tr()
+        for ((team, score, teamResults) <- clsTeams) {
+          writer
+            .tr()
+            .td(score._1)
+            .td(teamFullName(team))
+            .td(teamResults.map(ps => s"${ps._1.fullName}:${ps._2}b-${ps._1.result.time}s").mkString(" "))
+            .td(score._2)
+            ._tr()
+        }
+        writer._table()
+        writer._page()
+      }
+
+      writer.hr()
 
       // print points assigned in each category
       for (cls <- data.classResult if !cls.isOpen) {
