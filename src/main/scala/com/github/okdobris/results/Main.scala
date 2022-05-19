@@ -104,6 +104,7 @@ object Main {
 
 
     val writer = new TableWriter.Multi(new TableWriter.CSV(writerCSV), new TableWriter.HTML(writerHTML))
+    val clsMap = clsResults.toMap
 
     try {
       // print general header
@@ -118,28 +119,6 @@ object Main {
       }
       writer._page()
       writer.hr()
-
-      // print points assigned in each category
-      val clsMap = clsResults.toMap
-      for (cls <- data.classResult if !cls.isOpen) {
-        val clsPoints = clsMap(cls.`class`.name).flatMap(_._3).map(kv => kv._1.person -> kv._2).toMap
-        val clsPersons = cls.personResult.map { personResult =>
-          personResult -> clsPoints.getOrElse(personResult.person, 0)
-        }.sortBy(_._1.result.position.getOrElse(Int.MaxValue))
-
-        writer.page()
-        writer.label(s"\nKategorie ${cls.`class`.name}\n")
-        writer.table()
-        writer.tr().th("Umístění").th("Družstvo").th("Body").th("Závodník")._tr()
-        for (p <- clsPersons) {
-          writer.tr(if (p._2 != 0) "score" else "").td(s"${p._1.result.position.map(_.toString).getOrElse("DISK")}").td(teamFullName(p._1.team)).td(p._2).td(p._1.fullName)._tr()
-        }
-        writer._table()
-        writer._page()
-      }
-
-      writer.hr()
-
 
       // print team results report
       for ((cls, clsTeams) <- clsResults) {
@@ -190,6 +169,29 @@ object Main {
 
 
       }
+
+      // print points assigned in each category
+      for (cls <- data.classResult if !cls.isOpen) {
+        val clsPoints = clsMap(cls.`class`.name).flatMap(_._3).map(kv => kv._1.person -> kv._2).toMap
+        val clsPersons = cls.personResult.map { personResult =>
+          personResult -> clsPoints.getOrElse(personResult.person, 0)
+        }.sortBy(_._1.result.position.getOrElse(Int.MaxValue))
+
+        writer.page()
+        writer.label(s"\nKategorie ${cls.`class`.name}\n")
+        writer.table()
+        writer.tr().th("Umístění").th("Družstvo").th("Body").th("Závodník")._tr()
+        for (p <- clsPersons) {
+          writer.tr(if (p._2 != 0) "score" else "").td(s"${p._1.result.position.map(_.toString).getOrElse("DISK")}").td(teamFullName(p._1.team)).td(p._2).td(p._1.fullName)._tr()
+        }
+        writer._table()
+        writer._page()
+      }
+
+      writer.hr()
+
+
+
 
     } finally {
       writer.close()
