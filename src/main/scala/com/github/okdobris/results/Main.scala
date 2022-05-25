@@ -4,7 +4,7 @@ import model._
 import org.json4s._
 import org.json4s.Xml._
 
-import java.io.{FileOutputStream, FileWriter, OutputStreamWriter}
+import java.io.{File, FileOutputStream, FileWriter, OutputStreamWriter}
 import scala.util._
 import java.nio.charset.StandardCharsets
 
@@ -32,10 +32,11 @@ object Main {
     }
   }
 
-  def main(args: Array[String]): Unit = {
-    val inputFile = if (args.nonEmpty) args(0) else "results.xml"
-    val outputFile = if (args.length > 1) args(1) else "report.csv"
-    val outputHtmlFile = if (args.length > 1) args(1) else "report.html"
+  def processOneInput(inputFile: String): Unit = {
+    val dot = inputFile.lastIndexOf('.')
+    val shortInputName = if (dot >= 0) inputFile.take(dot) else inputFile
+    val outputFile = shortInputName + ".csv"
+    val outputHtmlFile = shortInputName + ".html"
 
     val xml = scala.xml.XML.loadFile(inputFile)
     // some fields should be interpreted as numbers if possible
@@ -108,6 +109,18 @@ object Main {
     val clsMap = clsResults.toMap
 
     try {
+      writer.page()
+      // print any warnings first
+
+      // print warnings: missing ID
+      val missingId = data.classResult.filterNot(_.isOpen).flatMap(_.personResult.filter(pr => pr.person.id.isEmpty && pr.organisation.isEmpty))
+      for (m <- missingId) {
+        writer.label(s"Chybí informace o družstvu: ${m.person.fullName}")
+      }
+
+      writer._page()
+
+
       // print category groups
       val groups = Seq(
         "DH3+DH5" -> Seq("D3", "H3", "D5", "H5", "DI", "HI", "DII", "HII"),
@@ -122,17 +135,6 @@ object Main {
 
         val teamGroupResults = g.groupBy(_._1).toList
         val teamScores = teamGroupResults.map(kv => (kv._1, kv._2.map(_._2._1).sum, kv._2.map(_._2._2).sum)).sortBy(kv => (-kv._2, kv._3)) // sort by score reversed, then by time
-
-        writer.page()
-        // print any warnings first
-
-        // print warnings: missing ID
-        val missingId = data.classResult.filterNot(_.isOpen).flatMap(_.personResult.filter(_.person.id.isEmpty).map(_.person))
-        for (m <- missingId) {
-          writer.label(s"Chybějící id: ${m.fullName}")
-        }
-
-        writer._page()
 
         writer.page()
         writer.label(s"Kategorie $groupName")
@@ -208,4 +210,16 @@ object Main {
 
 
   }
+
+  def main(args: Array[String]): Unit = {
+    if (args.isEmpty) {
+      val inputFiles = new File(".").listFiles.filter(_.isFile).filter(_.getName.toLowerCase.endsWith(".xml"))
+      for (file <- inputFiles) {
+        processOneInput(file.getPath)
+      }
+    } else {
+      processOneInput(args.head)
+    }
+  }
+
 }
