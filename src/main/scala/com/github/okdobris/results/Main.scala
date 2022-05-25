@@ -36,6 +36,7 @@ object Main {
     val inputFile = if (args.nonEmpty) args(0) else "results.xml"
     val outputFile = if (args.length > 1) args(1) else "report.csv"
     val outputHtmlFile = if (args.length > 1) args(1) else "report.html"
+
     val xml = scala.xml.XML.loadFile(inputFile)
     // some fields should be interpreted as numbers if possible
 
@@ -68,9 +69,9 @@ object Main {
 
     val teams = data.teams
 
-    val teamNames = data.classResult.flatMap(_.personResult.map(pr => pr.team -> pr.organisation.map(_.name).getOrElse(""))).distinct.toMap
+    val teamNames = data.classResult.flatMap(_.personResult.map(pr => pr.person.teamCode -> pr.organisation.map(_.name).getOrElse(""))).distinct.toMap
 
-    def teamFullName(team: String) = s"$team (${teamNames(team)})"
+    def teamFullName(team: String) = team
 
     val clsResults = data.classResult.filterNot(_.isOpen).map { cls =>
 
@@ -123,13 +124,24 @@ object Main {
         val teamScores = teamGroupResults.map(kv => (kv._1, kv._2.map(_._2._1).sum, kv._2.map(_._2._2).sum)).sortBy(kv => (-kv._2, kv._3)) // sort by score reversed, then by time
 
         writer.page()
+        // print any warnings first
+
+        // print warnings: missing ID
+        val missingId = data.classResult.filterNot(_.isOpen).flatMap(_.personResult.filter(_.person.id.isEmpty).map(_.person))
+        for (m <- missingId) {
+          writer.label(s"Chybějící id: ${m.fullName}")
+        }
+
+        writer._page()
+
+        writer.page()
         writer.label(s"Kategorie $groupName")
 
         writer.table()
         writer.tr().th("Body").th("Družstvo").th("Celk.čas")._tr()
 
         for ((team, score, time) <- teamScores) {
-          writer.tr().td(score).td(s"$team (${teamNames(team)})").td(time)._tr()
+          writer.tr().td(score).td(teamFullName(team)).td(time)._tr()
         }
         writer._table()
         writer._page()
@@ -164,11 +176,6 @@ object Main {
       writer.label(s"Nejobsazenější kategorie: ${mostTeams._1} ${mostTeams._2}")
       writer.label(s"Bodů za 1. místo: $winPoints")
 
-      // print warnings: missing ID
-      val missingId = data.classResult.filterNot(_.isOpen).flatMap(_.personResult.filter(_.person.id.isEmpty).map(_.person))
-      for (m <- missingId) {
-        writer.label(s"Chybějící id: ${m.fullName}")
-      }
       writer._page()
 
 
