@@ -4,7 +4,15 @@ package object results {
   import model._
   // https://obrozvoj.cz/Pages/PreborSkol/Pravidla.aspx
   implicit class ClassResultOps(private val cls: ClassResult) {
-    def isOpen: Boolean = cls.`class`.name.toLowerCase == "open"
+    def isOpen: Boolean = {
+      // when class does not start with D or H, assume it is "open" (not counted as teams)
+      cls.`class`.name.toLowerCase.head match {
+        case 'd' | 'h' =>
+          false
+        case _ =>
+          true
+      }
+    }
   }
 
   implicit class PersonOps(private val person: Person) {
