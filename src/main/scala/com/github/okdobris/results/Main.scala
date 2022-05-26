@@ -78,8 +78,16 @@ object Main {
 
       // další závodníci družstva, kteří již nebodují body neberou, ale ani body neumořují.
       val scoringPlaces = cls.personResult.filter(_.result.position.nonEmpty).groupBy(_.team).toList.flatMap(_._2.take(2)).sortBy(_.result.position)
-      val scores = scoringPlaces.zipWithIndex.map { case (result, scoreRank) =>
+      val scoresPrelim = scoringPlaces.zipWithIndex.map { case (result, scoreRank) =>
         result -> (winPoints - scoreRank max 0)
+      }
+      // when two racers have both the same place and they both score, they need to get the same (higher) score
+      val scoreFromPosition = scoresPrelim.groupBy(_._1.result.position).map { case (pos, scores) =>
+        pos -> scores.map(_._2).max
+      }
+
+      val scores = scoresPrelim.map { case (person, score) =>
+        person -> scoreFromPosition(person.result.position)
       }
       val teamResults = teams.flatMap { team =>
         // list only teams participating in the class
