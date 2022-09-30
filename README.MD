@@ -11,7 +11,7 @@ Program je velmi nenáročný, stačí mu Java 8, měl by běžet na libovolné 
 - výsledky jednotlivců dejte běžným způsobem do ORISu
 - stáhněte si verzi z https://github.com/ok-dobris/TeamResults/releases (jar soubor)
 - otevřete si v ORISu výsledky závodu a pod tlačítkem **Exporty** vyberte **Export XML 3.0**  
-- stažený XML soubor (bude se jmenovat třeba export_xml_NNNN.xml) umístěte ho vedle JAR souboru
+- stažený XML soubor (bude se jmenovat třeba export_xml_NNNN.xml) umístěte vedle JAR souboru
   - pozn.: pokud program najde více xml souborů, zpracuje je všechny. Staré soubory, které už nechcete znovu
     zpracovávat, tedy raději mažte.
 - spusťte JAR soubor aplikace (ve Windows stačí poklepat)
