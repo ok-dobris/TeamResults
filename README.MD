@@ -4,7 +4,7 @@ Program počítá výsledky přeboru škol podle pravidel z https://obrozvoj.cz/
 
 #### Systémové požadavky
 
-Program je velmi nenáročný, stačí mu Java 8, měl by běžet na libovolné operačním systému, kde je Java.
+Program je velmi nenáročný, stačí mu Java 8, měl by běžet na libovolném operačním systému, kde je Java.
 
 #### Jak použít
 
