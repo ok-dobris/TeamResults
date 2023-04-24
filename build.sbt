@@ -1,8 +1,8 @@
-ThisBuild / version := "0.5.0"
+ThisBuild / version := "0.6.0"
 
-ThisBuild / scalaVersion := "2.13.8"
+ThisBuild / scalaVersion := "2.13.10"
 
-val json4sVersion = "4.0.5"
+val json4sVersion = "4.0.6"
 
 lazy val root = (project in file("."))
   .settings(
