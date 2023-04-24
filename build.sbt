@@ -17,5 +17,5 @@ lazy val root = (project in file("."))
     libraryDependencies += "org.json4s" %% "json4s-xml" % json4sVersion,
     libraryDependencies += "org.json4s" %% "json4s-ext" % json4sVersion,
 
-    libraryDependencies += "com.typesafe" % "config" % "1.4.2"
+    libraryDependencies += "com.github.pureconfig" %% "pureconfig" % "0.17.3"
   )

@@ -21,8 +21,14 @@ Program je velmi nenáročný, stačí mu Java 8, měl by běžet na libovolném
 #### Konfigurace
 
 - vedle JAR souboru můžete umístit soubor s názvem `application.properties`. S jeho pomocí můžete změnit některé parametry toho,
-  jak se výsledky počítají  
+  jak se výsledky počítají:
 
 ```
-scoring_first = 2 # Počet bodujících v každém družstvu
+scoring-first: 3 # Počet bodujících v každém družstvu
+
+categories: { # Skupiny kategorií
+  "DH3+DH5": [D3, H3, D5, H5, DI, HI, DII, HII]
+  "DH7+DH9": [D7, H7, D9, H9, DIII, HIII, DIV, HIV]
+  "DS+HS": [DS, HS, DV, HV]
+}
 ```

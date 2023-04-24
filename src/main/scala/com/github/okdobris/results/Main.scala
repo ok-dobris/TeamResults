@@ -9,7 +9,7 @@ import scala.util._
 import java.nio.charset.StandardCharsets
 
 
-object Main extends Configuration {
+object Main {
   implicit val formats: Formats = DefaultFormats ++ org.json4s.ext.JavaTimeSerializers.all
 
   val cfg = Configuration("application.conf")
@@ -79,7 +79,7 @@ object Main extends Configuration {
     val clsResults = data.classResult.filterNot(_.isOpen).map { cls =>
 
       // další závodníci družstva, kteří již nebodují body neberou, ale ani body neumořují.
-      val scoringPlaces = cls.personResult.filter(_.result.position.nonEmpty).groupBy(_.team).toList.flatMap(_._2.take(cfg.scoring_first)).sortBy(_.result.position)
+      val scoringPlaces = cls.personResult.filter(_.result.position.nonEmpty).groupBy(_.team).toList.flatMap(_._2.take(cfg.scoringFirst)).sortBy(_.result.position)
       val scoresPrelim = scoringPlaces.zipWithIndex.map { case (result, scoreRank) =>
         result -> (winPoints - scoreRank max 0)
       }
@@ -132,11 +132,8 @@ object Main extends Configuration {
 
 
       // print category groups
-      val groups = Seq(
-        "DH3+DH5" -> Seq("D3", "H3", "D5", "H5", "DI", "HI", "DII", "HII"),
-        "DH7+DH9" -> Seq("D7", "H7", "D9", "H9", "DIII", "HIII", "DIV", "HIV"),
-        "DS+HS" -> Seq("DS", "HS", "DV", "HV")
-      )
+
+      val groups = cfg.categories.toSeq.sortBy(_._1)
 
       for ((groupName, group) <- groups) {
         val g = group.flatMap { clsName =>

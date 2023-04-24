@@ -1,35 +1,29 @@
 package com.github.okdobris.results
 
-import com.typesafe.config.ConfigFactory
-
-import java.io.{File, FileInputStream, FileNotFoundException}
-import java.util.Properties
+import pureconfig._
+import pureconfig.generic.semiauto._
 
 case class Configuration(
-  scoring_first: Int = 2
+  scoringFirst: Int = 2,
+  categories: Map[String, Seq[String]] = Map(
+    "DH3+DH5" -> Seq("D3", "H3", "D5", "H5", "DI", "HI", "DII", "HII"),
+    "DH7+DH9" -> Seq("D7", "H7", "D9", "H9", "DIII", "HIII", "DIV", "HIV"),
+    "DS+HS" -> Seq("DS", "HS", "DV", "HV")
+  )
 )
 
 object Configuration {
 
+  implicit val deriverReader: ConfigReader[Configuration] = deriveReader
+
   def apply(path: String): Configuration = {
-    System.setProperty("config.file", path)
-    val config = ConfigFactory.load()
-    try {
 
-      implicit class GetProp(c: Configuration) {
-        def process(prop: String)(f: (Configuration, String) => Configuration): Configuration = {
-          Option(config.getString(prop)).map { value =>
-            f(c, value)
-          }.getOrElse(c)
-        }
-      }
+    val read = ConfigSource.file(path).load[Configuration]
 
-      Configuration()
-        .process("scoring_first")((c, v) => c.copy(scoring_first = v.toInt))
-
-    } catch {
-      case ex: FileNotFoundException => // when file is not found, use defaults
-        Configuration()
+    read.left.foreach { err =>
+      throw new UnsupportedOperationException(err.toList.mkString(","))
     }
+
+    read.getOrElse(Configuration(2))
   }
 }
