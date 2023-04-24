@@ -17,3 +17,12 @@ Program je velmi nenáročný, stačí mu Java 8, měl by běžet na libovolném
 - spusťte JAR soubor aplikace (ve Windows stačí poklepat)
   - pokud je vše v pořádku, měly by se vytvořit soubory s koncovkami  **.html** a **.csv**. CSV soubor je vhodný,
     pokud chcete výsledky dále zpracovávat, HTML soubor je vhodný k prohlížení / tisku a zveřejnění
+
+#### Konfigurace
+
+- vedle JAR souboru můžete umístit soubor s názvem `application.properties`. S jeho pomocí můžete změnit některé parametry toho,
+  jak se výsledky počítají  
+
+```
+scoring_first = 2 # Počet bodujících v každém družstvu
+```

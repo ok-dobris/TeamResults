@@ -9,8 +9,10 @@ import scala.util._
 import java.nio.charset.StandardCharsets
 
 
-object Main {
+object Main extends Configuration {
   implicit val formats: Formats = DefaultFormats ++ org.json4s.ext.JavaTimeSerializers.all
+
+  val cfg = Configuration("application.conf")
 
   /**
    * there may be multiple id fields, we want to replace the first one before type->ORIS entry, as that is the field represented in XML as "<Id type="ORIS">"
@@ -70,14 +72,14 @@ object Main {
 
     val teams = data.teams
 
-    val teamNames = data.classResult.flatMap(_.personResult.map(pr => pr.person.teamCode -> pr.organisation.map(_.name).getOrElse(""))).distinct.toMap
+    //val teamNames = data.classResult.flatMap(_.personResult.map(pr => pr.person.teamCode -> pr.organisation.map(_.name).getOrElse(""))).distinct.toMap
 
     def teamFullName(team: String) = team
 
     val clsResults = data.classResult.filterNot(_.isOpen).map { cls =>
 
       // další závodníci družstva, kteří již nebodují body neberou, ale ani body neumořují.
-      val scoringPlaces = cls.personResult.filter(_.result.position.nonEmpty).groupBy(_.team).toList.flatMap(_._2.take(2)).sortBy(_.result.position)
+      val scoringPlaces = cls.personResult.filter(_.result.position.nonEmpty).groupBy(_.team).toList.flatMap(_._2.take(cfg.scoring_first)).sortBy(_.result.position)
       val scoresPrelim = scoringPlaces.zipWithIndex.map { case (result, scoreRank) =>
         result -> (winPoints - scoreRank max 0)
       }
