@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Assembly
         run: sbt assembly
 
@@ -25,4 +25,3 @@ jobs:
           file: target/scala-2.13/TeamResults.jar
           tag: ${{ github.ref }}
           overwrite: true
-        
