@@ -4,10 +4,9 @@ import model._
 import org.json4s._
 import org.json4s.Xml._
 
-import java.io.{File, FileOutputStream, FileWriter, OutputStreamWriter}
+import java.io.{File, FileOutputStream, OutputStreamWriter}
 import scala.util._
 import java.nio.charset.StandardCharsets
-
 
 object Main {
   implicit val formats: Formats = DefaultFormats ++ org.json4s.ext.JavaTimeSerializers.all
@@ -44,6 +43,7 @@ object Main {
     // some fields should be interpreted as numbers if possible
 
     val numericFields = Set("time", "position", "controlCode")
+    val arrayFields = Set("personResult", "splitTime", "classResult")
     val json = toJson(xml).camelizeKeys.transformField {
       case originalValue@(name, JString(value)) =>
         if (numericFields.contains(name)) {
@@ -57,6 +57,17 @@ object Main {
     }.transform {
       case JObject(HandleOrisId(fields)) =>
         JObject(fields:_*)
+      case JObject(fields) if fields.map(_._1).exists(arrayFields.contains) =>
+        // XML does not represent arrays, it stores multiple fields with the same name instead
+        // convert to arrays to get a well-formed JSON (also prevents error https://github.com/ok-dobris/TeamResults/issues/3)
+        val mappedFields = arrayFields.foldLeft(fields) { (fields, fieldName) =>
+          val (namedValues, otherValues) = fields.partition(_._1 == fieldName)
+          val values = namedValues.filter(_._1 == fieldName).map(_._2)
+          fieldName -> JArray(values) :: otherValues
+        }
+        JObject(mappedFields: _*)
+      case x =>
+        x
     }
 
     val data = json match {

@@ -4,6 +4,9 @@ ThisBuild / scalaVersion := "2.13.10"
 
 val json4sVersion = "4.0.6"
 
+val circeVersion = "0.14.1"
+
+
 lazy val root = (project in file("."))
   .settings(
     name := "TeamResults",
