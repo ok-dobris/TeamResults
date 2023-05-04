@@ -20,7 +20,7 @@ Program je velmi nenáročný, stačí mu Java 8, měl by běžet na libovolném
 
 #### Konfigurace
 
-- vedle JAR souboru můžete umístit soubor s názvem `application.properties`. S jeho pomocí můžete změnit některé parametry toho,
+- vedle JAR souboru můžete umístit soubor s názvem `application.conf`. S jeho pomocí můžete změnit některé parametry toho,
   jak se výsledky počítají:
 
 ```
