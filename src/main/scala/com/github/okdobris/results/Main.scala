@@ -79,7 +79,7 @@ object Main {
 
     val mostTeams = data.mostTeams
     // Již od okresních kol se body přidělují podle počtu zúčastněných družstev v nejvíce obsazené kategorii x 2.
-    val winPoints = mostTeams._2 * 2
+    val winPoints = mostTeams._2 * cfg.scoringFirst
 
     val teams = data.teams
 
