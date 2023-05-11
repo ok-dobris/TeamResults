@@ -24,7 +24,7 @@ Program je velmi nenáročný, stačí mu Java 8, měl by běžet na libovolném
   jak se výsledky počítají:
 
 ```
-scoring-first: 3 # Počet bodujících v každém družstvu
+scoring-first: 2 # Počet bodujících v každém družstvu
 
 categories: { # Skupiny kategorií
   "DH3+DH5": [D3, H3, D5, H5, DI, HI, DII, HII]
