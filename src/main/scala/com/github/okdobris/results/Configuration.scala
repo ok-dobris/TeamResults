@@ -1,7 +1,10 @@
 package com.github.okdobris.results
 
 import pureconfig._
+import pureconfig.error.{CannotReadFile, ConfigReaderFailures, ConvertFailure}
 import pureconfig.generic.semiauto._
+
+import java.io.FileNotFoundException
 
 case class Configuration(
   scoringFirst: Int = 2,
@@ -21,7 +24,12 @@ object Configuration {
     val read = ConfigSource.file(path).load[Configuration]
 
     read.left.foreach { err =>
-      throw new UnsupportedOperationException(err.toList.mkString(","))
+      err.head match {
+        case CannotReadFile(_,  _) =>
+          // file not found is expected - continue normally
+        case _ =>
+          throw new UnsupportedOperationException(err.toList.mkString(","))
+      }
     }
 
     read.getOrElse(Configuration(2))
