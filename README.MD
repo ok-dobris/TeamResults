@@ -10,7 +10,9 @@ Program je velmi nenáročný, stačí mu Java 8, měl by běžet na libovolném
 
 - výsledky jednotlivců dejte běžným způsobem do ORISu
 - stáhněte si verzi z https://github.com/ok-dobris/TeamResults/releases (jar soubor)
-- otevřete si v ORISu výsledky závodu a pod tlačítkem **Exporty** vyberte **Export XML 3.0**  
+- otevřete si v ORISu výsledky závodu a pod tlačítkem **Exporty** vyberte **Export XML 3.0**
+  - tohle je opravdu potřeba. I když pořádací program také produkují IOF XML 3.0 výsledky, pro vyhodnocení přeboru
+    obvykle nestačí, ORIS některé potřebné informace přidá (hlavně o družstvech)
 - stažený XML soubor (bude se jmenovat třeba export_xml_NNNN.xml) umístěte vedle JAR souboru
   - pozn.: pokud program najde více xml souborů, zpracuje je všechny. Staré soubory, které už nechcete znovu
     zpracovávat, tedy raději mažte.
@@ -20,8 +22,7 @@ Program je velmi nenáročný, stačí mu Java 8, měl by běžet na libovolném
 
 #### Konfigurace
 
-- vedle JAR souboru můžete umístit soubor s názvem `application.conf`. S jeho pomocí můžete změnit některé parametry toho,
-  jak se výsledky počítají:
+- pokud potřebujete změnit bodování nebo kategorie, vedle JAR souboru můžete umístit soubor s názvem `application.conf`. S jeho pomocí můžete změnit některé parametry toho, jak se výsledky počítají:
 
 ```
 scoring-first: 2 # Počet bodujících v každém družstvu
