@@ -141,7 +141,7 @@ object Main {
       // print warnings: missing ID
       val missingId = data.classResult.filterNot(_.isOpen).flatMap(_.personResult.filter(pr => pr.person.id.isEmpty && pr.organisation.isEmpty))
       for (m <- missingId) {
-        writer.label(s"Chybí informace o družstvu: ${m.person.fullName}")
+        writer.label(s"Chybí informace o družstvu pro: ${m.person.fullName}")
       }
 
       writer._page()
