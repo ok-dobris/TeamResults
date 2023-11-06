@@ -44,7 +44,8 @@ object Main {
 
     val numericFields = Set("time", "position", "controlCode")
     val arrayFields = Set("personResult", "splitTime", "classResult")
-    val json = toJson(xml).camelizeKeys.transformField {
+    val jsonFromXML = toJson(xml)
+    val json = jsonFromXML.camelizeKeys.transformField {
       case originalValue@(name, JString(value)) =>
         if (numericFields.contains(name)) {
           Try(value.toInt) match {
@@ -63,7 +64,11 @@ object Main {
         val mappedFields = arrayFields.foldLeft(fields) { (fields, fieldName) =>
           val (namedValues, otherValues) = fields.partition(_._1 == fieldName)
           val values = namedValues.filter(_._1 == fieldName).map(_._2)
-          fieldName -> JArray(values) :: otherValues
+          if (values.nonEmpty) {
+            fieldName -> JArray(values) :: otherValues
+          } else {
+            otherValues
+          }
         }
         JObject(mappedFields: _*)
       case x =>
